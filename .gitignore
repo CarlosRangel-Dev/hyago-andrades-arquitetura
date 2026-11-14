@@ -1,0 +1,15 @@
+contact-sheet.jpg
+asset-map.json
+ASSET-SOURCES.json
+outputs/
+*.zip
+*token*
+*Token*
+.env*
+!.env.example
+.openai/
+revisao-*.png
+image-widths.json
+deployment-local.json
+ops-*.ps1
+repositorio-criado.png

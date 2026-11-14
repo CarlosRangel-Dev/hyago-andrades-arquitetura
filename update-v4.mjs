@@ -1,0 +1,16 @@
+import {readFile,writeFile} from 'node:fs/promises';
+let html=await readFile('dist/index.html','utf8');
+html=html.replace('href="assets/logo.jpg"','href="assets/logo-oficial.png"');
+html=html.replace('<link rel="stylesheet" href="refinement.css">','<link rel="stylesheet" href="refinement.css"><link rel="stylesheet" href="mobile.css"><script src="loading.js" defer></script>');
+html=html.replace('<a class="skip"',`<div class="page-loader" hidden role="status" aria-live="polite" aria-label="Preparando a página"><div class="loader-inner"><div class="loader-word" aria-hidden="true"><span>HYAGO<br>ANDRADES</span><span class="loader-fill">HYAGO<br>ANDRADES</span></div><div class="loader-meta"><span>Arquitetura &amp; interiores</span><span class="loader-progress" aria-hidden="true">0%</span></div><p class="loader-status">Preparando os primeiros espaços…</p><button class="loader-skip" type="button">Entrar no site ↗</button></div></div>\n<a class="skip"`);
+html=html.replace('<span class="brand-mark">HY<br>AGO</span><span>Hyago Andrades<small>Arquitetura e interiores</small></span>','<img class="official-logo" src="assets/logo-oficial.png" alt="Hyago Andrades — arquitetura e interiores" width="800" height="300">');
+const whatsapp='https://wa.me/5522997395022?text='+encodeURIComponent('Olá, Hyago! Vim pelo site e gostaria de conversar sobre um projeto.');
+html=html.replace('<a href="#contato" class="header-contact">Vamos conversar <span>↗</span></a>',`<a href="${whatsapp}" class="header-contact whatsapp-cta" target="_blank" rel="noopener noreferrer">Fale pelo WhatsApp <span>↗</span></a>`);
+html=html.replace('<a href="#contato">Vamos conversar</a>',`<a class="whatsapp-cta" href="${whatsapp}" target="_blank" rel="noopener noreferrer">Fale pelo WhatsApp ↗</a>`);
+html=html.replace('href="https://www.instagram.com/hyagoandradesarq/" target="_blank" rel="noopener noreferrer" class="contact-main"',`href="${whatsapp}" target="_blank" rel="noopener noreferrer" class="contact-main whatsapp-cta"`);
+html=html.replace('<a class="text-link" href="https://www.instagram.com/hyagoandradesarq/" target="_blank" rel="noopener noreferrer">Conversar pelo Instagram ↗</a>',`<a class="text-link whatsapp-cta" href="${whatsapp}" target="_blank" rel="noopener noreferrer">Iniciar conversa no WhatsApp ↗</a>`);
+html=html.replace('<a href="#contato" class="text-link dialog-contact">Vamos conversar sobre seu projeto ↗</a>',`<a href="${whatsapp}" class="text-link dialog-contact whatsapp-cta" target="_blank" rel="noopener noreferrer">Conversar sobre meu projeto no WhatsApp ↗</a>`);
+html=html.replace('<footer><a href="#inicio">Hyago Andrades</a>','<footer><a href="#inicio" aria-label="Hyago Andrades, início"><img class="footer-logo" src="assets/logo-oficial.png" alt="Hyago Andrades — arquitetura e interiores" width="800" height="300"></a>');
+html=html.replace('<dialog class="project-dialog">','<dialog class="project-dialog" data-lenis-prevent>');
+html=html.replace('<div class="gallery-stage" tabindex="0"','<div class="gallery-stage" tabindex="0"');
+await writeFile('dist/index.html',html);

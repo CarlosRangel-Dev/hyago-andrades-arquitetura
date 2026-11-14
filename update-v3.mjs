@@ -1,0 +1,23 @@
+import {readFile,writeFile} from 'node:fs/promises';
+let html=await readFile('dist/index.html','utf8');
+html=html.replace('<script src="app.js" defer>', '<script src="vendor/lenis.min.js" defer></script><script src="app.js" defer>');
+const ninth=`<button class="project reveal" data-category="residencial" data-project="varanda"><div class="project-image"><img src="assets/varanda.jpg" alt="Varanda integrada com luz natural e vista para o exterior" loading="lazy" width="1600" height="1200"><span class="project-open">Conhecer o espaço ↗</span></div><div class="project-caption"><h3>Entre dentro e fora</h3><span>Interiores residenciais</span></div></button>`;
+html=html.replace('</div><p class="portfolio-note">',ninth+'</div><p class="portfolio-note">');
+const start=html.indexOf('<section class="drawing-sequence"'),end=html.indexOf('<section class="showcase');
+const sections=[...html.slice(start,end).matchAll(/<section class="drawing-sequence"[^>]*><div class="drawing-stage">([\s\S]*?)<\/div><\/section>/g)];
+if(sections.length!==3)throw Error('Esperadas três cenas');
+const panels=sections.map((m,i)=>`<article class="drawing-panel" data-scene="${i}" aria-label="${['Estar','Café','Varanda'][i]}">${m[1]}</article>`).join('');
+html=html.slice(0,start)+`<section class="drawing-sequence drawing-master" aria-label="Três projetos, do traço ao espaço"><div class="drawing-stage">${panels}<nav class="scene-nav" aria-label="Escolher exemplo do traço"><button data-scene-go="0" aria-current="true">01 <span>Estar</span></button><button data-scene-go="1" aria-current="false">02 <span>Café</span></button><button data-scene-go="2" aria-current="false">03 <span>Varanda</span></button></nav></div></section>\n`+html.slice(end);
+const galleryStart=html.indexOf('<section class="showcase'),galleryEnd=html.indexOf('<section class="interlude"');
+const items=[['jardim','Entre dentro e fora'],['residencia','Materialidade que acolhe'],['comercial','Identidade em cada espaço'],['cozinha','A vida acontece aqui'],['exterior','Novas perspectivas'],['jantar','Tempo de estar junto'],['boutique','Um olhar para o detalhe']];
+html=html.slice(0,galleryStart)+`<section class="showcase section-pad" aria-roledescription="carrossel" aria-label="Galeria de projetos"><div class="section-heading"><div><p class="eyebrow">Percorra outras perspectivas</p><h2>Um acervo de sensações.</h2></div><div class="gallery-buttons"><button class="gallery-prev" aria-label="Foto anterior">←</button><button class="gallery-next" aria-label="Próxima foto">→</button></div></div><div class="gallery-arrangements" role="group" aria-label="Disposição das fotografias"><button data-arrange="list" aria-pressed="true">Perspectiva</button><button data-arrange="grid" aria-pressed="false">Mosaico</button><button data-arrange="ring" aria-pressed="false">Órbita</button><button data-arrange="stack" aria-pressed="false">Camadas</button></div><div class="gallery-stage" tabindex="0" aria-label="Arraste ou use as setas para percorrer; Enter abre a imagem"><div class="gallery-world">${items.map(([id,title],i)=>`<button class="gallery-card" data-gallery-index="${i}" aria-label="Abrir ${title}"><span class="gallery-card-number">${String(i+1).padStart(2,'0')}</span><img src="assets/${id}.jpg" alt="${title} — projeto do acervo de Hyago Andrades" loading="lazy" width="1600" height="1200"><span class="gallery-card-caption">${title}</span></button>`).join('')}</div></div><div class="gallery-footer"><p>Arraste para percorrer. Clique para ampliar.</p><span class="gallery-counter" aria-live="polite">1 / 7</span><button class="gallery-play" aria-pressed="false">Reproduzir galeria ▷</button></div></section>`+html.slice(galleryEnd);
+html=html.replace('<link rel="stylesheet" href="experience.css">','<link rel="stylesheet" href="experience.css"><link rel="stylesheet" href="refinement.css">');
+await writeFile('dist/index.html',html);
+let app=await readFile('dist/app.js','utf8');
+app=app.replace('const projects={',`const projects={varanda:{title:'Entre dentro e fora',type:'Interiores residenciais',description:'Varanda integrada com luz natural e abertura para o exterior. Fotografia do acervo de projetos do escritório.'},`);
+// Entrance observer is managed by experience.js after word wrapping.
+app=app.replace(/const observer = new IntersectionObserver[\s\S]*?document\.querySelectorAll\('\.reveal'\)\.forEach\(el=>observer\.observe\(el\)\);\n/,'');
+await writeFile('dist/app.js',app);
+let experience=await readFile('dist/experience.js','utf8');
+const trail=experience.slice(experience.indexOf('// A bounded image trail'),experience.indexOf('// Scroll-snap coverflow'));
+await writeFile('dist/cursor-trail.js',trail);

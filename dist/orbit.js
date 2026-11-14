@@ -1,0 +1,23 @@
+(() => {
+ const gallery=document.querySelector('.showcase'),stage=gallery.querySelector('.gallery-stage'),cards=[...gallery.querySelectorAll('.gallery-card')],counter=gallery.querySelector('.gallery-counter'),play=gallery.querySelector('.gallery-play');
+ const count=cards.length,turn=Math.PI*2/count,mod=n=>((Math.round(n)%count)+count)%count;
+ let target=0,current=0,playing=!motion.matches,visible=false,hover=false,focused=false,drag=null,suppressUntil=0,resumeAt=0,dirty=true,lastLabel=-1;
+ const poses=cards.map(()=>({x:0,y:25,z:-300,ry:0,scale:.9,opacity:0}));
+ const syncButton=()=>{play.disabled=motion.matches;play.setAttribute('aria-pressed',String(playing));play.textContent=motion.matches?'Movimento reduzido':playing?'Pausar órbita Ⅱ':'Reproduzir órbita ▷';counter.setAttribute('aria-live',playing?'off':'polite')};
+ function interact(){resumeAt=performance.now()+2400;dirty=true}
+ function step(amount){target=Math.round(target)+amount;interact()}
+ gallery.querySelector('.gallery-prev').addEventListener('click',()=>step(-1));gallery.querySelector('.gallery-next').addEventListener('click',()=>step(1));
+ play.addEventListener('click',()=>{playing=!playing;syncButton();interact()});
+ stage.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse')hover=true});stage.addEventListener('pointerleave',()=>{hover=false;interact()});
+ stage.addEventListener('focusin',()=>focused=true);stage.addEventListener('focusout',e=>{focused=stage.contains(e.relatedTarget);interact()});
+ stage.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target===stage){e.preventDefault();cards[mod(target)].click()}else if(e.key==='ArrowLeft'||e.key==='ArrowRight'){e.preventDefault();step(e.key==='ArrowRight'?1:-1)}});
+ stage.addEventListener('pointerdown',e=>{if(!e.isPrimary||e.button!==0)return;drag={x:e.clientX,y:e.clientY,start:target,id:e.pointerId,horizontal:false};interact()});
+ stage.addEventListener('pointermove',e=>{if(!drag||drag.id!==e.pointerId)return;const dx=e.clientX-drag.x,dy=e.clientY-drag.y;if(!drag.horizontal){if(Math.abs(dy)>10&&Math.abs(dy)>=Math.abs(dx)){drag=null;return}if(Math.abs(dx)<10||Math.abs(dx)<Math.abs(dy)*1.25)return;drag.horizontal=true;stage.setPointerCapture(e.pointerId)}target=drag.start-dx/(cards[0].offsetWidth*.8);dirty=true});
+ function endDrag(){if(!drag)return;const previous=drag;drag=null;if(previous.horizontal){target=Math.round(target);suppressUntil=performance.now()+350;if(stage.hasPointerCapture(previous.id))stage.releasePointerCapture(previous.id)}interact()}
+ stage.addEventListener('pointerup',endDrag);stage.addEventListener('pointercancel',endDrag);stage.addEventListener('lostpointercapture',endDrag);
+ cards.forEach(card=>card.addEventListener('click',()=>{if(drag?.horizontal||performance.now()<suppressUntil)return;interact();lastProject=card;const image=card.querySelector('img');dialog.querySelector('img').src=image.src;dialog.querySelector('img').alt=image.alt;dialog.querySelector('h2').textContent=card.querySelector('.gallery-card-caption').textContent;dialog.querySelector('.eyebrow').textContent='Acervo do escritório';dialog.querySelector('.dialog-description').textContent='Fotografia de projeto do acervo de Hyago Andrades.';dialog.showModal();document.body.classList.add('dialog-open');lenis?.stop()}));
+ new IntersectionObserver(entries=>{visible=entries[0].isIntersecting;dirty=true},{rootMargin:'100px'}).observe(gallery);
+ addEventListener('resize',()=>dirty=true);motion.addEventListener('change',()=>{playing=!motion.matches;syncButton();dirty=true});
+ window.updateOrbit=(dt,time)=>{const autoplay=playing&&visible&&!document.hidden&&!hover&&!focused&&!drag&&!dialog.open&&time>resumeAt;if(autoplay){target+=dt*.00017;dirty=true}if(!dirty)return;const a=motion.matches?1:1-Math.exp(-dt/150);current+=(target-current)*a;let unsettled=Math.abs(target-current)>.0005;const radius=stage.clientWidth<600?185:Math.min(450,stage.clientWidth*.34);cards.forEach((card,i)=>{const angle=(i-current)*turn,depth=(Math.cos(angle)+1)/2,goal={x:Math.sin(angle)*radius,y:-depth*12,z:(Math.cos(angle)-1)*radius,ry:-Math.sin(angle)*48,scale:.86+depth*.14,opacity:.22+depth*.78},p=poses[i];for(const k in p){if(Math.abs(goal[k]-p[k])>.001)unsettled=true;p[k]+=(goal[k]-p[k])*a}card.style.transform=`translate3d(${p.x}px,${p.y}px,${p.z}px) rotateY(${p.ry}deg) scale(${p.scale})`;card.style.opacity=p.opacity;card.style.zIndex=String(Math.round(depth*100));card.style.pointerEvents=depth>.35?'auto':'none';card.classList.toggle('is-current',i===mod(current))});const label=mod(current);if(label!==lastLabel){counter.textContent=`${label+1} / ${count}`;lastLabel=label}dirty=autoplay||unsettled};
+ syncButton();
+})();

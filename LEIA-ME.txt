@@ -1,0 +1,9 @@
+HYAGO ANDRADES — PRIMEIRA VERSÃO
+
+Extraia o ZIP e abra dist/index.html no navegador.
+
+Fotos reais da pasta do projeto. Os nomes editoriais das obras e os textos estão sujeitos a revisão. A cena de desenho usa contornos da própria fotografia, não uma planta técnica.
+
+O contato principal abre o WhatsApp +55 22 99739-5022. Instagram é um link secundário. O site WordPress permanece intacto.
+
+Revisão visual/interativa realizada em Chrome desktop e quatro viewports mobile/paisagem. Teste em Safari iOS e Chrome Android físicos ainda é necessário antes do lançamento. Publicação online pendente de autorização específica para enviar estes arquivos e imagens à hospedagem Sites.
